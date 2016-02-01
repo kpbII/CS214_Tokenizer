@@ -1,2 +1,5 @@
 # CS214_Tokenizer
-Assignment 0 CS214
+
+Rutgers CS 214 Assignment 0
+
+In which we create a tokenizer in C
