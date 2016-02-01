@@ -4,16 +4,21 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 /*
 * Tokenizer type.  You need to fill in the type as part of your implementation.
 */
 
 struct TokenizerT_ {
-	//TODO
+	char *token;
+	tokenType_ type;
+	int length;
+	int index;
 };
 
 typedef struct TokenizerT_ TokenizerT;
+typedef enum {WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD} tokenType_;
 
 /*
 * TKCreate creates a new TokenizerT object for a given token stream
@@ -30,6 +35,11 @@ typedef struct TokenizerT_ TokenizerT;
 */
 
 TokenizerT *TKCreate( char * ts ) {
+	//error checking
+	if(ts == NULL | strlen(ts) <= 0) return NULL;
+
+	//allocate memory
+	TokenizerT * token = (TokenizerT*)malloc(sizeof(TokenizerT));
 
 	return NULL;
 }
@@ -61,6 +71,20 @@ char *TKGetNextToken( TokenizerT * tk ) {
 	return NULL;
 }
 
+char* tokenize(char *input)
+{
+	//initialize size of result array
+	int i = 0;
+	int index = 0;
+	int length = strlen(input);
+	char *temp = (char*)malloc((len)*sizeof(char));
+
+	for(i = 0; input[i] != '\0' && i < len; i++)
+	{
+		if(isalpha(input[i]))
+	}
+}
+
 /*
 * main will have a string argument (in argv[1]).
 * The string argument contains the tokens.
@@ -72,7 +96,7 @@ int main(int argc, char **argv) {
 	//check if valid number of arguments
 	if(argc != 2)
 	{
-		printf("Incorrect number of arguments");
+		printf("Incorrect number of arguments \n");
 		exit(11);
 	}
 	
@@ -80,9 +104,12 @@ int main(int argc, char **argv) {
 	//empty string check
 	if(strlen(argv[1]) == 0)
 	{
-		printf("empty string passed, nothing to parse");
+		printf("empty string passed, nothing to parse \n");
 		exit(0);
 	}
+
+	print_chars(argv[1]);
+
 
 
 
