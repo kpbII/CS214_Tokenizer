@@ -38,12 +38,12 @@ struct TokenizerT_ {
 
 TokenizerT *TKCreate( char * ts ) {
 	//error checking
-	if(ts == NULL | strlen(ts) <= 0) return NULL;
+	if(ts == 0 | strlen(ts) <= 0) return 0;
 
 	//allocate memory
 	TokenizerT * token = (TokenizerT*)malloc(sizeof(TokenizerT));
 
-	return NULL;
+	return 0;
 }
 
 /*
@@ -54,7 +54,7 @@ TokenizerT *TKCreate( char * ts ) {
 */
 
 void TKDestroy( TokenizerT * tk ) {
-	if(tk == NULL)  return;
+	if(tk == 0)  return;
     free(tk->type);
     free(tk);
 }
@@ -73,7 +73,7 @@ void TKDestroy( TokenizerT * tk ) {
 
 char *TKGetNextToken( TokenizerT * tk ) {
 
-	return NULL;
+	return 0;
 }
 
 char* tokenize(char *input)
