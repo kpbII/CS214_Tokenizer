@@ -52,6 +52,9 @@ TokenizerT *TKCreate( char * ts ) {
 */
 
 void TKDestroy( TokenizerT * tk ) {
+	if(tk == NULL)  return;
+    free(tk->type);
+    free(tk);
 }
 
 /*
