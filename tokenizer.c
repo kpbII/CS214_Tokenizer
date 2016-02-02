@@ -10,15 +10,17 @@
 * Tokenizer type.  You need to fill in the type as part of your implementation.
 */
 
+
+
+typedef struct TokenizerT_ TokenizerT;
+typedef enum {WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD} tokenType_;
+
 struct TokenizerT_ {
 	char *token;
 	tokenType_ type;
 	int length;
 	int index;
 };
-
-typedef struct TokenizerT_ TokenizerT;
-typedef enum {WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD} tokenType_;
 
 /*
 * TKCreate creates a new TokenizerT object for a given token stream
@@ -80,9 +82,9 @@ char* tokenize(char *input)
 	int i = 0;
 	int index = 0;
 	int length = strlen(input);
-	char *temp = (char*)malloc((len)*sizeof(char));
+	char *temp = (char*)malloc((length)*sizeof(char));
 
-	for(i = 0; input[i] != '\0' && i < len; i++)
+	for(i = 0; input[i] != '\0' && i < length; i++)
 	{
 		if(isalpha(input[i]))
 	}
