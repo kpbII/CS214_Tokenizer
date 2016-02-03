@@ -55,7 +55,6 @@ TokenizerT *TKCreate( char * ts ) {
 
 void TKDestroy( TokenizerT * tk ) {
 	if(tk == 0)  return;
-    free(tk->type);
     free(tk);
 }
 
@@ -76,8 +75,7 @@ char *TKGetNextToken( TokenizerT * tk ) {
 	return 0;
 }
 
-char* tokenize(char *input)
-{
+char* tokenize(char *input){
 	//initialize size of result array
 	int i = 0;
 	int index = 0;
@@ -86,8 +84,9 @@ char* tokenize(char *input)
 
 	for(i = 0; input[i] != '\0' && i < length; i++)
 	{
-		if(isalpha(input[i]))
+		if(isalpha(input[i])){}
 	}
+	return 0;
 }
 
 /*
@@ -113,7 +112,7 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	print_chars(argv[1]);
+	printf("%s\n",argv[1]);
 
 
 
