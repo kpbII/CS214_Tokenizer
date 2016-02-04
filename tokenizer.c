@@ -10,15 +10,23 @@
 * Tokenizer type.  You need to fill in the type as part of your implementation.
 */
 
-struct TokenizerT_ {
-	char *token;
-	tokenType_ type;
+
+
+typedef enum tokenType {WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD} tokenType_;
+
+typedef struct TokenizerT_ {
+	char *tokenstring;
 	int length;
 	int index;
-};
+}TokenizerT;
 
-typedef struct TokenizerT_ TokenizerT;
-typedef enum {WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD} tokenType_;
+typedef struct Token_ {
+	char *token;
+	int length;
+	enum tokenType tType;
+
+}Token;
+char* tokenize(char *input);
 
 /*
 * TKCreate creates a new TokenizerT object for a given token stream
@@ -36,13 +44,29 @@ typedef enum {WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD} tokenType_;
 
 TokenizerT *TKCreate( char * ts ) {
 	//error checking
-	if(ts == NULL | strlen(ts) <= 0) return NULL;
+	if(ts == 0 | strlen(ts) <= 0) return 0;
 
 	//allocate memory
-	TokenizerT * token = (TokenizerT*)malloc(sizeof(TokenizerT));
 
-	return NULL;
+	TokenizerT *tizer = (TokenizerT*)malloc(sizeof(TokenizerT));
+	if(tizer == NULL)
+	{
+		fprintf(stderr, "Out of memory\n");
+		exit(EXIT_FAILURE);
+	}
+	tizer->tokenstring=strdup(ts);
+	if(tizer->tokenstring==NULL){//this is a secret malloc, free later
+		fprintf(stderr, "Out of memory\n");
+		exit(EXIT_FAILURE);
+	}
+	tizer->index=0;
+	tizer->length = strlen(tizer->tokenstring);
+
+
+	return tizer;
+
 }
+
 
 /*
 * TKDestroy destroys a TokenizerT object.  It should free all dynamically
@@ -52,9 +76,9 @@ TokenizerT *TKCreate( char * ts ) {
 */
 
 void TKDestroy( TokenizerT * tk ) {
-	if(tk == NULL)  return;
-    free(tk->type);
-    free(tk);
+	if(tk == 0)  return;
+    free(tk->tokenstring);
+	free(tk);
 }
 
 /*
@@ -70,22 +94,35 @@ void TKDestroy( TokenizerT * tk ) {
 */
 
 char *TKGetNextToken( TokenizerT * tk ) {
-
-	return NULL;
+	char *thistoken = tokenize(tk->tokenstring+tk->index);
+	tk->index += strlen(thistoken)+1;
+	return thistoken;
 }
-
-char* tokenize(char *input)
-{
+/*given a string, tokenize will chomp identify what kind
+ * and go until it gets to the next new token
+ */
+char* tokenize(char *input){
 	//initialize size of result array
 	int i = 0;
 	int index = 0;
 	int length = strlen(input);
-	char *temp = (char*)malloc((len)*sizeof(char));
+	char *temp = (char*)malloc((length)*sizeof(char));
 
-	for(i = 0; input[i] != '\0' && i < len; i++)
+	for(i = 0; input[i] != '\0' && i < length; i++)
 	{
-		if(isalpha(input[i]))
+		char c = input[i];
+		if(isalpha(c)){
+			temp[i]=c;
+		}
+		else if(isdigit(c)){
+			//go to the number branch
+		}
+		else if(isspace(c)){
+			temp[i] = '\0';
+			return temp;
+		}
 	}
+	return temp;
 }
 
 /*
@@ -111,9 +148,17 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	print_chars(argv[1]);
-
-
+	printf("This is your string: %s\n",argv[1]);
+	TokenizerT * TT = TKCreate(argv[1]);
+	printf("Create Successful\nTokenizer string is: %s\n", TT->tokenstring);
+	int x = 0;
+	while(TT->index < TT->length){
+		char* tok = TKGetNextToken(TT);
+		printf("Token: %s\n",tok);
+		free(tok);
+		x++;
+	}
+	TKDestroy(TT);
 
 
 	return 0;
