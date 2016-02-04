@@ -26,6 +26,7 @@ typedef struct Token_ {
 	enum tokenType tType;
 
 }Token;
+char* tokenize(char *input);
 
 /*
 * TKCreate creates a new TokenizerT object for a given token stream
@@ -93,33 +94,35 @@ void TKDestroy( TokenizerT * tk ) {
 */
 
 char *TKGetNextToken( TokenizerT * tk ) {
-
-
-
-	return 0;
+	char *thistoken = tokenize(tk->tokenstring+tk->index);
+	tk->index += strlen(thistoken)+1;
+	return thistoken;
 }
-
+/*given a string, tokenize will chomp identify what kind
+ * and go until it gets to the next new token
+ */
 char* tokenize(char *input){
 	//initialize size of result array
 	int i = 0;
 	int index = 0;
 	int length = strlen(input);
-	//char *temp = (char*)malloc((length)*sizeof(char));
+	char *temp = (char*)malloc((length)*sizeof(char));
 
 	for(i = 0; input[i] != '\0' && i < length; i++)
 	{
 		char c = input[i];
 		if(isalpha(c)){
-			//go to word
+			temp[i]=c;
 		}
 		else if(isdigit(c)){
 			//go to the number branch
 		}
 		else if(isspace(c)){
-
+			temp[i] = '\0';
+			return temp;
 		}
 	}
-	return 0;
+	return temp;
 }
 
 /*
@@ -147,9 +150,13 @@ int main(int argc, char **argv) {
 
 	printf("This is your string: %s\n",argv[1]);
 	TokenizerT * TT = TKCreate(argv[1]);
-	printf("Create Successful\n Tokenizer string is: %s\n", TT->tokenstring);
+	printf("Create Successful\nTokenizer string is: %s\n", TT->tokenstring);
+	int x = 0;
 	while(TT->index < TT->length){
-		TKGetNextToken(TT);
+		char* tok = TKGetNextToken(TT);
+		printf("Token: %s\n",tok);
+		free(tok);
+		x++;
 	}
 	TKDestroy(TT);
 
