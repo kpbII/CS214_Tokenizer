@@ -47,19 +47,22 @@ TokenizerT *TKCreate( char * ts ) {
 
 	//allocate memory
 
-	TokenizerT *token = (TokenizerT*)malloc(sizeof(TokenizerT));
-	if(token == NULL)
+	TokenizerT *tizer = (TokenizerT*)malloc(sizeof(TokenizerT));
+	if(tizer == NULL)
 	{
 		fprintf(stderr, "Out of memory\n");
 		exit(EXIT_FAILURE);
 	}
-	token->tokenstring=strdup(ts);
-	if(token->tokenstring==NULL){//this is a secret malloc, free later
+	tizer->tokenstring=strdup(ts);
+	if(tizer->tokenstring==NULL){//this is a secret malloc, free later
 		fprintf(stderr, "Out of memory\n");
 		exit(EXIT_FAILURE);
 	}
+	tizer->index=0;
+	tizer->length = strlen(tizer->tokenstring);
 
-	return token;
+
+	return tizer;
 
 }
 
@@ -145,9 +148,10 @@ int main(int argc, char **argv) {
 	printf("This is your string: %s\n",argv[1]);
 	TokenizerT * TT = TKCreate(argv[1]);
 	printf("Create Successful\n Tokenizer string is: %s\n", TT->tokenstring);
-
-
-
+	while(TT->index < TT->length){
+		TKGetNextToken(TT);
+	}
+	TKDestroy(TT);
 
 
 	return 0;
