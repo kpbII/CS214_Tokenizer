@@ -12,15 +12,20 @@
 
 
 
-typedef struct TokenizerT_ TokenizerT;
-typedef enum {WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD} tokenType_;
+typedef enum tokenType {WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD} tokenType_;
 
-struct TokenizerT_ {
-	char *token;
-	tokenType_ type;
+typedef struct TokenizerT_ {
+	char *tokenstring;
 	int length;
 	int index;
-};
+}TokenizerT;
+
+typedef struct Token_ {
+	char *token;
+	int length;
+	enum tokenType tType;
+
+}Token;
 
 /*
 * TKCreate creates a new TokenizerT object for a given token stream
@@ -41,10 +46,23 @@ TokenizerT *TKCreate( char * ts ) {
 	if(ts == 0 | strlen(ts) <= 0) return 0;
 
 	//allocate memory
-	TokenizerT * token = (TokenizerT*)malloc(sizeof(TokenizerT));
 
-	return 0;
+	TokenizerT *token = (TokenizerT*)malloc(sizeof(TokenizerT));
+	if(token == NULL)
+	{
+		fprintf(stderr, "Out of memory\n");
+		exit(EXIT_FAILURE);
+	}
+	token->tokenstring=strdup(ts);
+	if(token->tokenstring==NULL){//this is a secret malloc, free later
+		fprintf(stderr, "Out of memory\n");
+		exit(EXIT_FAILURE);
+	}
+
+	return token;
+
 }
+
 
 /*
 * TKDestroy destroys a TokenizerT object.  It should free all dynamically
@@ -55,7 +73,8 @@ TokenizerT *TKCreate( char * ts ) {
 
 void TKDestroy( TokenizerT * tk ) {
 	if(tk == 0)  return;
-    free(tk);
+    free(tk->tokenstring);
+	free(tk);
 }
 
 /*
@@ -72,6 +91,8 @@ void TKDestroy( TokenizerT * tk ) {
 
 char *TKGetNextToken( TokenizerT * tk ) {
 
+
+
 	return 0;
 }
 
@@ -80,11 +101,20 @@ char* tokenize(char *input){
 	int i = 0;
 	int index = 0;
 	int length = strlen(input);
-	char *temp = (char*)malloc((length)*sizeof(char));
+	//char *temp = (char*)malloc((length)*sizeof(char));
 
 	for(i = 0; input[i] != '\0' && i < length; i++)
 	{
-		if(isalpha(input[i])){}
+		char c = input[i];
+		if(isalpha(c)){
+			//go to word
+		}
+		else if(isdigit(c)){
+			//go to the number branch
+		}
+		else if(isspace(c)){
+
+		}
 	}
 	return 0;
 }
@@ -112,7 +142,10 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	printf("%s\n",argv[1]);
+	printf("This is your string: %s\n",argv[1]);
+	TokenizerT * TT = TKCreate(argv[1]);
+	printf("Create Successful\n Tokenizer string is: %s\n", TT->tokenstring);
+
 
 
 
