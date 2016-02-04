@@ -104,7 +104,6 @@ char *TKGetNextToken( TokenizerT * tk ) {
 char* tokenize(char *input){
 	//initialize size of result array
 	int i = 0;
-	int index = 0;
 	int length = strlen(input);
 	char *temp = (char*)malloc((length)*sizeof(char));
 
@@ -115,10 +114,10 @@ char* tokenize(char *input){
 			temp[i]=c;
 		}
 		else if(isdigit(c)){
-			//go to the number branch
+			temp[i]=c;
 		}
 		else if(isspace(c)){
-			temp[i] = '\0';
+			//temp[i] = '\0';
 			return temp;
 		}
 	}
