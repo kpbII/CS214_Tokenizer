@@ -12,7 +12,7 @@
 
 
 
-typedef enum tokenType {WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD} tokenType_;
+typedef enum tokenType {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD, NUMBER} tokenType_;
 
 typedef struct Token_ {
 	char *token;
