@@ -14,19 +14,22 @@
 
 typedef enum tokenType {WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD} tokenType_;
 
+typedef struct Token_ {
+	char *token;
+	enum tokenType tType;
+}Token;
+
 typedef struct TokenizerT_ {
 	char *tokenstring;
 	int length;
 	int index;
+	Token *current_token;
 }TokenizerT;
 
-typedef struct Token_ {
-	char *token;
-	int length;
-	enum tokenType tType;
 
-}Token;
-char* tokenize(char *input);
+
+
+Token* tokenize(char *input);
 
 /*
 * TKCreate creates a new TokenizerT object for a given token stream
@@ -94,18 +97,18 @@ void TKDestroy( TokenizerT * tk ) {
 */
 
 char *TKGetNextToken( TokenizerT * tk ) {
-	char *thistoken = tokenize(tk->tokenstring+tk->index);
-	tk->index += strlen(thistoken)+1;
-	return thistoken;
+	tk->current_token = tokenize(tk->tokenstring+tk->index);
+	tk->index += strlen(tk->current_token->token)+1;
+	return tk->current_token->token;
 }
 /*given a string, tokenize will chomp identify what kind
  * and go until it gets to the next new token
  */
-char* tokenize(char *input){
+Token* tokenize(char *input){
 	//initialize size of result array
 	int i = 0;
 	int length = strlen(input);
-	char *temp = (char*)malloc((length)*sizeof(char));
+	char *temp = (char*)calloc((length),sizeof(char));
 
 	for(i = 0; input[i] != '\0' && i < length; i++)
 	{
@@ -118,10 +121,18 @@ char* tokenize(char *input){
 		}
 		else if(isspace(c)){
 			//temp[i] = '\0';
-			return temp;
+			break;
 		}
 	}
-	return temp;
+
+	Token *temp_token= (Token*)calloc(1, sizeof(Token));
+	if(temp_token==NULL){
+		fprintf(stderr, "Out of memory\n");
+		exit(EXIT_FAILURE);
+	}
+	temp_token->token = temp;
+
+	return temp_token;
 }
 
 /*
@@ -153,8 +164,9 @@ int main(int argc, char **argv) {
 	int x = 0;
 	while(TT->index < TT->length){
 		char* tok = TKGetNextToken(TT);
-		printf("Token: %s\n",tok);
+		printf("Type:%d, Token:%s\n",TT->current_token->tType,tok);//printing an enum gets its number not string
 		free(tok);
+		free(TT->current_token);
 		x++;
 	}
 	TKDestroy(TT);
