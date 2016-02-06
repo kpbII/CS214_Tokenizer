@@ -17,7 +17,6 @@ typedef enum tokenType_ {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, NU
 typedef struct Token_ {
 	char *token;
 	tokenType tType;
-	int index;
 }Token;
 
 typedef struct TokenizerT_ {
@@ -30,7 +29,7 @@ typedef struct TokenizerT_ {
 
 
 
-Token* tokenize(char *input);
+Token* tokenize( TokenizerT * tk );
 
 /*
 * TKCreate creates a new TokenizerT object for a given token stream
@@ -98,10 +97,11 @@ void TKDestroy( TokenizerT * tk ) {
 */
 
 char *TKGetNextToken( TokenizerT * tk ) {
-	tk->current_token = tokenize(tk->tokenstring+tk->index);
-	tk->index += strlen(tk->current_token->token)+1;
+	tk->current_token = tokenize(tk);
+	tk->index += strlen(tk->current_token->token);
 	return tk->current_token->token;
 }
+
 
 /*
 * state-getter, getter of states
@@ -109,7 +109,7 @@ char *TKGetNextToken( TokenizerT * tk ) {
 * more fine-grained decision making should be done in tokenize i think
 * the "x" in hex is a problem right now, however
 */
-tokenType getState( char input )
+tokenType getSimpleState( char input )
 {
 	char c = input;
 
@@ -131,13 +131,9 @@ tokenType getState( char input )
 		return SPACE;
 	}
 
-	//odd things 
 	else if(ispunct(c))
 	{
-		if(c != '.')
-			return BADTOKEN;
-		else
-			return NUMBER;
+		return BADTOKEN;
 	}
 
 	else if(iscntrl(c))
@@ -154,12 +150,20 @@ tokenType getState( char input )
 
 }
 
-Token* tokenize(char *input)
+tokenType stateTree(Token current, char input)
+{
+	return 0;
+
+
+
+}
+
+Token* tokenize( TokenizerT * tk )
 {
 	//initialize size of result array
 	int i = 0;
-	int j = 1;
-	int length = strlen(input);
+	int length = strlen(tk->tokenstring);
+	char *input = tk->tokenstring;
 	char *temp = (char*)calloc((length),sizeof(char));
 	
 	Token *temp_token = (Token*)calloc(1, sizeof(Token));
@@ -170,25 +174,37 @@ Token* tokenize(char *input)
 		exit(EXIT_FAILURE);
 	}
 
-	for(i = 0; input[i] != '\0' && i < length; i+=j)
+	for(i = tk->index; input[i] != '\0' && i <= length; i++)
 	{
 		//get character at current index, give it a type.
-		char cur = input[i];
-		temp_token->tType = getState(cur);
+		char start = input[tk->index];
+		tokenType cType = getSimpleState(start);
+		temp_token->tType = cType;
+
+		char next = input[i];
+		tokenType nType = getSimpleState(next);
+
 
 		//if its a space, end the token
-		if(temp_token->tType == SPACE || temp_token->tType == BADTOKEN)
+		if(cType == SPACE)
 		{
-			//temp[i] = '\0';
-			temp_token->tType = getState(input[i-1]);
+			tk->index++;
 			break;
 		}
 
-		temp[strlen(temp)] = cur;
-
+		else if(cType == nType)
+		{
+			temp[strlen(temp)] = next;
+		}
+		else
+		{
+			break;
+		}
 
 
 	}
+
+	//printf("contents of index: %d\n",tk->index);
 
 	temp_token->token = temp;
 
@@ -226,7 +242,9 @@ int main(int argc, char **argv) {
 	while(TT->index < TT->length){
 		char* tok = TKGetNextToken(TT);
 		if(strlen(tok) == 0)
+		{
 			x++;
+		}
 		else
 		{
 			printf("Type:%d, Token:%s\n",TT->current_token->tType,tok);//printing an enum gets its number not string
