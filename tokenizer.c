@@ -12,11 +12,12 @@
 
 
 
-typedef enum tokenType {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, KEYWORD, NUMBER} tokenType_;
+typedef enum tokenType_ {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, NUMBER, BADTOKEN, SPACE} tokenType;
 
 typedef struct Token_ {
 	char *token;
-	enum tokenType tType;
+	tokenType tType;
+	int index;
 }Token;
 
 typedef struct TokenizerT_ {
@@ -101,39 +102,99 @@ char *TKGetNextToken( TokenizerT * tk ) {
 	tk->index += strlen(tk->current_token->token)+1;
 	return tk->current_token->token;
 }
-/*given a string, tokenize will chomp identify what kind
- * and go until it gets to the next new token
- */
-Token* tokenize(char *input){
-	//initialize size of result array
-	int i = 0;
-	int length = strlen(input);
-	char *temp = (char*)calloc((length),sizeof(char));
 
-	for(i = 0; input[i] != '\0' && i < length; i++)
+/*
+* state-getter, getter of states
+* will only make generalizations, ie number, letter, control, punctuation
+* more fine-grained decision making should be done in tokenize i think
+* the "x" in hex is a problem right now, however
+*/
+tokenType getState( char input )
+{
+	char c = input;
+
+	if(isalpha(c))
 	{
-		char c = input[i];
-		if(isalpha(c)){
-			temp[i]=c;
-		}
-		else if(isdigit(c)){
-			temp[i]=c;
-		}
-		else if(isspace(c)){
-			//temp[i] = '\0';
-			break;
-		}
+		return WORD;
 	}
 
-	Token *temp_token= (Token*)calloc(1, sizeof(Token));
-	if(temp_token==NULL){
+	//number branch
+	//3 options: hex, dec, octal
+	else if(isdigit(c))
+	{
+		return NUMBER;
+	}
+
+	//space is an easy delimiter
+	else if(isspace(c))
+	{
+		return SPACE;
+	}
+
+	//odd things 
+	else if(ispunct(c))
+	{
+		if(c != '.')
+			return BADTOKEN;
+		else
+			return NUMBER;
+	}
+
+	else if(iscntrl(c))
+	{
+		return CONTROL;
+	}
+
+	else
+	{
+		return DEFAULT;
+	}
+
+	return DEFAULT;
+
+}
+
+Token* tokenize(char *input)
+{
+	//initialize size of result array
+	int i = 0;
+	int j = 1;
+	int length = strlen(input);
+	char *temp = (char*)calloc((length),sizeof(char));
+	
+	Token *temp_token = (Token*)calloc(1, sizeof(Token));
+	temp_token->tType = DEFAULT;
+	if(temp_token==NULL)
+	{
 		fprintf(stderr, "Out of memory\n");
 		exit(EXIT_FAILURE);
 	}
+
+	for(i = 0; input[i] != '\0' && i < length; i+=j)
+	{
+		//get character at current index, give it a type.
+		char cur = input[i];
+		temp_token->tType = getState(cur);
+
+		//if its a space, end the token
+		if(temp_token->tType == SPACE || temp_token->tType == BADTOKEN)
+		{
+			//temp[i] = '\0';
+			temp_token->tType = getState(input[i-1]);
+			break;
+		}
+
+		temp[strlen(temp)] = cur;
+
+
+
+	}
+
 	temp_token->token = temp;
 
 	return temp_token;
 }
+
 
 /*
 * main will have a string argument (in argv[1]).
@@ -164,10 +225,17 @@ int main(int argc, char **argv) {
 	int x = 0;
 	while(TT->index < TT->length){
 		char* tok = TKGetNextToken(TT);
-		printf("Type:%d, Token:%s\n",TT->current_token->tType,tok);//printing an enum gets its number not string
-		free(tok);
-		free(TT->current_token);
-		x++;
+		if(strlen(tok) == 0)
+			x++;
+		else
+		{
+			printf("Type:%d, Token:%s\n",TT->current_token->tType,tok);//printing an enum gets its number not string
+			free(tok);
+			free(TT->current_token);
+			x++;
+		}
+
+
 	}
 	TKDestroy(TT);
 
