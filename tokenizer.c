@@ -32,6 +32,63 @@ typedef struct TokenizerT_ {
 Token* tokenize( TokenizerT * tk );
 
 /*
+* Function to match up enum values with strings to fix the print issue
+*
+*
+*/
+char* getVals(tokenType type)
+{
+	switch(type)
+	{
+		case DEFAULT:
+			return "Default";
+
+		case WORD:
+			return "Word";
+
+		case DECIMAL:
+			return "Decimal";
+			break;
+
+		case HEX:
+			return "Hexadecimal";
+			break;
+
+		case OCTAL:
+			return "Octal";
+			break;
+
+		case FLOATP:
+			return "Float";
+			break;
+
+		case CONTROL:
+			return "Control Code";
+			break;
+
+		case NUMBER:
+			return "Number";
+			break;
+
+		case BADTOKEN:
+			return "Bad Token";
+			break;
+
+		case SPACE:
+			return "Space";
+			break;
+
+		default:
+			//return temp_token;
+			break;
+	}
+}
+
+
+
+
+
+/*
 * TKCreate creates a new TokenizerT object for a given token stream
 * (given as a string).
 * 
@@ -150,13 +207,13 @@ tokenType getSimpleState( char input )
 
 }
 
-tokenType stateTree(Token current, char input)
-{
-	return 0;
+// tokenType stateTree(Token current, char input)
+// {
+	
 
 
 
-}
+// }
 
 Token* tokenize( TokenizerT * tk )
 {
@@ -183,6 +240,46 @@ Token* tokenize( TokenizerT * tk )
 
 		char next = input[i];
 		tokenType nType = getSimpleState(next);
+		//DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, NUMBER, BADTOKEN, SPACE
+		//always append the string if they match
+		switch(cType)
+		{
+			case DEFAULT:
+				break;
+
+			case WORD:
+				break;
+
+			case DECIMAL:
+				break;
+
+			case HEX:
+				break;
+
+			case OCTAL:
+				break;
+
+			case FLOATP:
+				break;
+
+			case CONTROL:
+				break;
+
+			case NUMBER:
+				break;
+
+			case BADTOKEN:
+				break;
+
+			case SPACE:
+				break;
+
+			default:
+				//return temp_token;
+				break;
+
+		}
+
 
 
 		//if its a space, end the token
@@ -191,7 +288,7 @@ Token* tokenize( TokenizerT * tk )
 			tk->index++;
 			break;
 		}
-
+		//append if they match
 		else if(cType == nType)
 		{
 			temp[strlen(temp)] = next;
@@ -235,9 +332,8 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	printf("This is your string: %s\n",argv[1]);
 	TokenizerT * TT = TKCreate(argv[1]);
-	printf("Create Successful\nTokenizer string is: %s\n", TT->tokenstring);
+	printf("Tokenizer string is: %s\n", TT->tokenstring);
 	int x = 0;
 	while(TT->index < TT->length){
 		char* tok = TKGetNextToken(TT);
@@ -247,7 +343,8 @@ int main(int argc, char **argv) {
 		}
 		else
 		{
-			printf("Type:%d, Token:%s\n",TT->current_token->tType,tok);//printing an enum gets its number not string
+			char* enumVal = getVals(TT->current_token->tType);
+			printf("%s: %s\n",enumVal,tok);//printing an enum gets its number not string
 			free(tok);
 			free(TT->current_token);
 			x++;
