@@ -12,7 +12,7 @@
 
 
 
-typedef enum tokenType_ {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, BADTOKEN, SPACE} tokenType;
+typedef enum tokenType_ {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, BADTOKEN, SPACE, SPECIAL} tokenType;
 
 typedef struct Token_ {
 	char *token;
@@ -72,6 +72,10 @@ char* getVals(tokenType type)
 
 		case SPACE:
 			return "Space";
+			break;
+
+		case SPECIAL:
+			return "Special character";
 			break;
 
 		default:
@@ -155,6 +159,24 @@ char *TKGetNextToken( TokenizerT * tk ) {
 	return tk->current_token->token;
 }
 
+int isSpecialCharacter(char c){
+  switch(c)
+  {
+    case '\n': return 1; break;
+    case '\t': return 1; break;
+    case '\v': return 1; break;
+    case '\b': return 1; break;
+    case '\r': return 1; break;
+    case '\f': return 1; break;
+    case '\a': return 1; break;
+    case '\\': return 1; break;
+    case '\"': return 1; break;
+    default:
+    	return 0;
+  }
+}
+
+
 /*
 * state-getter, getter of simple states
 * will only make generalizations, ie number, letter, control, punctuation
@@ -164,17 +186,18 @@ char *TKGetNextToken( TokenizerT * tk ) {
 tokenType getSimpleState( char input )
 {
 	char c = input;
-	//number branch
-	//3 options: hex, dec, octal
 	if(isdigit(c))
 	{
 		return DECIMAL;
 	}
-
-	//space is an easy delimiter
 	else if(isspace(c))
 	{
 		return SPACE;
+	}
+
+	else if(isSpecialCharacter(c))
+	{
+		return SPECIAL;
 	}
 
 	else if(ispunct(c))
@@ -222,112 +245,75 @@ Token* tokenize( TokenizerT * tk )
 
 	for(int i = tk->index; input[i] != '\0' && i <= length; i++)
 	{
-
+		char cur = temp[strlen(temp) - 1];
 		char next = input[i];
-		tokenType nType = getSimpleState(next);
-		
-		//DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, BADTOKEN, SPACE
 
-		// //check for space
+		//tokenType cType = getSimpleState(cur);
+		tokenType nType = getSimpleState(next);
+
 		if(temp_token->tType == SPACE)
 		{
 			tk->index++;
 			break;
 		}
 		//append if they match, regardless of type
-		
+
+		//float
+		else if(next == '.' && temp_token->tType == DECIMAL)
+		{
+			temp_token->tType = FLOATP;
+			temp[strlen(temp)] = next;
+		}
+		else if((temp_token->tType == DECIMAL || temp_token->tType == FLOATP) && next == 'e')
+		{
+			temp_token->tType = FLOATP;
+			temp[strlen(temp)] = next;
+		}
+		else if(temp_token->tType == FLOATP && cur == 'e')
+		{
+			if(next == '+' || next == '-' || isdigit(next))
+				temp[strlen(temp)] = next;
+		}
+		else if(temp_token->tType == FLOATP && isdigit(next))
+		{
+			temp[strlen(temp)] = next;
+		}
+
+		//hex
+		else if(start == '0' && (next == 'x' || next == 'x'))
+		{
+			temp_token->tType = HEX;
+			temp[strlen(temp)] = next;
+		}
+		else if(temp_token->tType == HEX)
+		{
+			if(isxdigit(next))
+				temp[strlen(temp)] = next;
+			else if(strlen(temp) > 2)
+				break;
+			else if(strlen(temp) == 2)
+			{
+				temp_token->tType = BADTOKEN;
+				break;
+			}
+		}
+
+		//
 		else if(temp_token->tType == nType)
 		{
 			temp[strlen(temp)] = next;
 		}
-		// else if(temp_token->tType != nType)
-		// {
-		// 	switch(cType)
-		// 	{
-		// 		case DEFAULT:
-		// 			printf("I have no idea what just got passed");
-		// 			break;
-		// 		case WORD:
-		// 			if(temp_token->tType == SPACE)
-		// 			{
-		// 				tk->index++;
-		// 				break;
-		// 			}
-
-		// 		case DECIMAL:
-		// 			if(cType == nType)
-		// 			{
-		// 				temp[strlen(temp)] = next;
-		// 			}
-		// 			else if(cur == '0')
-		// 			{
-		// 				if(next == 'x' || next == 'X')
-		// 				{
-		// 					temp_token->tType = HEX;
-		// 					temp[strlen(temp)] = next;
-							
-		// 				}
-		// 				else if(!(next>7))
-		// 				{
-		// 					temp_token->tType = OCTAL;
-		// 					temp[strlen(temp)] = next;
-							
-		// 				}
-		// 			}
-		// 			else if(next == '.')
-		// 			{
-		// 				temp_token->tType = FLOATP;
-		// 				temp[strlen(temp)] = next;
-						
-		// 			}
-		// 			else
-		// 			{
-						
-		// 			}
-				
-		// 		case HEX:
-		// 			if(isxdigit(next))
-		// 			{
-		// 				temp[strlen(temp)] = next;
-		// 			}
-
-		// 		case OCTAL:
-					
-
-		// 		case FLOATP:
-					
-
-		// 		case CONTROL:
-					
-
-		// 		case BADTOKEN:
-		// 			temp[strlen(temp)] = next;
-					
-
-		// 		case SPACE:
-		// 			tk->index++;
-		// 			break;
-					
-
-		// 		default:
-		// 			break;
-		// 	}
-		// }
 		else
 		{
 			break;
 		}
-		
 
-
+	
 	}
 
-	//appends to string
-	//temp[strlen(temp)] = next;
-
-
+	//add null terminator and put string into token
+	temp[strlen(temp)] = '\0';
 	temp_token->token = temp;
-
 	return temp_token;
 }
 
