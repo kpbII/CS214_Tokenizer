@@ -12,7 +12,7 @@
 
 
 
-typedef enum tokenType_ {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, BADTOKEN, SPACE, SPECIAL} tokenType;
+typedef enum tokenType_ {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, BADTOKEN, SPACE, SPECIAL, OPERATOR} tokenType;
 
 typedef struct Token_ {
 	char *token;
@@ -25,6 +25,12 @@ typedef struct TokenizerT_ {
 	int index;
 	Token *current_token;
 }TokenizerT;
+
+char* cOperators[42] = 	{"(", ")", "[", "]", "~", "?", ":", ".", ",", 
+					"*", "&", "-", "!", "+", "/", "%", ">", "<",
+					"=", "^", "|", "*=", "&&", "--", "!=", "++", "/=",
+					"%=", ">>", "<<", "==", "^=", "||", "&=", "-=", "+=",
+					">=", "<=", "|=", "->", ">>=", "<<="};
 
 
 
@@ -72,6 +78,10 @@ char* getVals(tokenType type)
 
 		case SPACE:
 			return "Space";
+			break;
+
+		case OPERATOR:
+			return "Operator";
 			break;
 
 		case SPECIAL:
@@ -176,6 +186,20 @@ int isSpecialCharacter(char c){
   }
 }
 
+int isOperator(char * c)
+{
+	int i = 0;
+	int length = sizeof(cOperators);
+	for(i = 0; i < length; i++)
+	{
+		if(!strcmp(c,cOperators[i]))
+			return 1;
+	}
+
+	return 0;
+}
+
+
 
 /*
 * state-getter, getter of simple states
@@ -199,6 +223,11 @@ tokenType getSimpleState( char input )
 	{
 		return SPECIAL;
 	}
+
+	// else if(isOperator(c))
+	// {
+	// 	return OPERATOR;
+	// }
 
 	else if(ispunct(c))
 	{
@@ -229,6 +258,7 @@ Token* tokenize( TokenizerT * tk )
 {
 	//initialize size of result array
 	int length = strlen(tk->tokenstring);
+	int i = 0;
 	char *input = tk->tokenstring;
 	char *temp = (char*)calloc((length),sizeof(char));
 	
@@ -240,10 +270,10 @@ Token* tokenize( TokenizerT * tk )
 		exit(EXIT_FAILURE);
 	}
 
-	char start = input[tk->index];
+	int start = input[tk->index];
 	temp_token->tType = getSimpleState(start);
 
-	for(int i = tk->index; input[i] != '\0' && i <= length; i++)
+	for(i = tk->index; input[i] != '\0' && i <= length; i++)
 	{
 		char cur = temp[strlen(temp) - 1];
 		char next = input[i];
@@ -295,6 +325,18 @@ Token* tokenize( TokenizerT * tk )
 			{
 				temp_token->tType = BADTOKEN;
 				break;
+			}
+		}
+
+		else if(temp_token -> tType == OCTAL)
+		{
+			if(!isdigit(cur))
+			{
+				break;
+			}
+			else if(cur < 8)
+			{
+				temp[strlen(temp)] = next;
 			}
 		}
 
