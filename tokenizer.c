@@ -269,17 +269,20 @@ Token* tokenize( TokenizerT * tk )
 		//tokenType cType = getSimpleState(cur);
 		tokenType nType = getSimpleState(next);
 
-		if(temp_token->tType == SPACE)
+		if(temp_token->tType == SPACE || cur == ' ')
 		{
 			tk->index++;
+			printf("SPACE %c\n",next);
 			break;
+
 		}
 		//append if they match, regardless of type
 
-		if(temp_token->tType == WORD)
+		else if(temp_token->tType == WORD)
 		{
 			if(isalnum(next))
 			{
+				printf("%c\n",next);
 				temp_token->tType = WORD;
 				temp[strlen(temp)] = next;
 			}
