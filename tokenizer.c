@@ -274,7 +274,7 @@ Token* tokenize( TokenizerT * tk )
 		}
 		//append if they match, regardless of type
 
-		if(nType == WORD || temp_token->tType == WORD)
+		if(temp_token->tType == WORD)
 		{
 			if(isalnum(next))
 			{
