@@ -155,15 +155,6 @@ char *TKGetNextToken( TokenizerT * tk ) {
 	return tk->current_token->token;
 }
 
-// tokenType getPreciseState(char *input)
-// {
-// 	if(input[0] == '0')
-// 	{
-// 		if(strlen(input) == 1)
-// 	}
-// }
-
-
 /*
 * state-getter, getter of simple states
 * will only make generalizations, ie number, letter, control, punctuation
@@ -214,7 +205,6 @@ tokenType getSimpleState( char input )
 Token* tokenize( TokenizerT * tk )
 {
 	//initialize size of result array
-	int i = 0;
 	int length = strlen(tk->tokenstring);
 	char *input = tk->tokenstring;
 	char *temp = (char*)calloc((length),sizeof(char));
@@ -230,48 +220,103 @@ Token* tokenize( TokenizerT * tk )
 	char start = input[tk->index];
 	temp_token->tType = getSimpleState(start);
 
-	for(i = tk->index; input[i] != '\0' && i <= length; i++)
+	for(int i = tk->index; input[i] != '\0' && i <= length; i++)
 	{
-		int ind = tk->index;
-		//get character at current index, give it a type.
-		char cur = input[ind];
-		tokenType cType = getSimpleState(cur);
 
-
-		//printf("Current start Char: %c\n", start);
-
-		//get next character and type it
 		char next = input[i];
 		tokenType nType = getSimpleState(next);
-
-		//printf("Current next Char: %c\n", next);
 		
 		//DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, BADTOKEN, SPACE
 
-		//check for space
-		if(cType == SPACE)
+		// //check for space
+		if(temp_token->tType == SPACE)
 		{
 			tk->index++;
 			break;
 		}
 		//append if they match, regardless of type
 		
-		if(cType == nType)
+		else if(temp_token->tType == nType)
 		{
 			temp[strlen(temp)] = next;
 		}
+		// else if(temp_token->tType != nType)
+		// {
+		// 	switch(cType)
+		// 	{
+		// 		case DEFAULT:
+		// 			printf("I have no idea what just got passed");
+		// 			break;
+		// 		case WORD:
+		// 			if(temp_token->tType == SPACE)
+		// 			{
+		// 				tk->index++;
+		// 				break;
+		// 			}
 
+		// 		case DECIMAL:
+		// 			if(cType == nType)
+		// 			{
+		// 				temp[strlen(temp)] = next;
+		// 			}
+		// 			else if(cur == '0')
+		// 			{
+		// 				if(next == 'x' || next == 'X')
+		// 				{
+		// 					temp_token->tType = HEX;
+		// 					temp[strlen(temp)] = next;
+							
+		// 				}
+		// 				else if(!(next>7))
+		// 				{
+		// 					temp_token->tType = OCTAL;
+		// 					temp[strlen(temp)] = next;
+							
+		// 				}
+		// 			}
+		// 			else if(next == '.')
+		// 			{
+		// 				temp_token->tType = FLOATP;
+		// 				temp[strlen(temp)] = next;
+						
+		// 			}
+		// 			else
+		// 			{
+						
+		// 			}
+				
+		// 		case HEX:
+		// 			if(isxdigit(next))
+		// 			{
+		// 				temp[strlen(temp)] = next;
+		// 			}
+
+		// 		case OCTAL:
+					
+
+		// 		case FLOATP:
+					
+
+		// 		case CONTROL:
+					
+
+		// 		case BADTOKEN:
+		// 			temp[strlen(temp)] = next;
+					
+
+		// 		case SPACE:
+		// 			tk->index++;
+		// 			break;
+					
+
+		// 		default:
+		// 			break;
+		// 	}
+		// }
 		else
 		{
 			break;
 		}
-
-
-
-
-
-
-		temp_token->tType = cType;
 		
 
 
@@ -322,8 +367,7 @@ int main(int argc, char **argv) {
 		else
 		{
 			char* enumVal = getVals(TT->current_token->tType);
-			printf("%s: %s ",enumVal,tok);//printing an enum gets its number not string
-			printf("Current Index: %d\n",TT->index);
+			printf("%s: %s \n",enumVal,tok);//printing an enum gets its number not string
 			free(tok);
 			free(TT->current_token);
 			x++;
