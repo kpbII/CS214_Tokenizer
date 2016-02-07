@@ -26,11 +26,6 @@ typedef struct TokenizerT_ {
 	Token *current_token;
 }TokenizerT;
 
-char* cOperators[42] = 	{"(", ")", "[", "]", "~", "?", ":", ".", ",", 
-					"*", "&", "-", "!", "+", "/", "%", ">", "<",
-					"=", "^", "|", "*=", "&&", "--", "!=", "++", "/=",
-					"%=", ">>", "<<", "==", "^=", "||", "&=", "-=", "+=",
-					">=", "<=", "|=", "->", ">>=", "<<="};
 
 
 
@@ -42,9 +37,11 @@ Token* tokenize( TokenizerT * tk );
 *
 *
 */
-char* getVals(tokenType type)
+char* getVals(Token * type)
 {
-	switch(type)
+	//char* toReturn = isOperator(type->token);
+
+	switch(type->tType)
 	{
 		case DEFAULT:
 			return "Default";
@@ -73,7 +70,7 @@ char* getVals(tokenType type)
 			break;
 
 		case BADTOKEN:
-			return "Bad Token";
+			return "Punctuation";
 			break;
 
 		case SPACE:
@@ -169,35 +166,34 @@ char *TKGetNextToken( TokenizerT * tk ) {
 	return tk->current_token->token;
 }
 
-int isSpecialCharacter(char c){
-  switch(c)
-  {
-    case '\n': return 1; break;
-    case '\t': return 1; break;
-    case '\v': return 1; break;
-    case '\b': return 1; break;
-    case '\r': return 1; break;
-    case '\f': return 1; break;
-    case '\a': return 1; break;
-    case '\\': return 1; break;
-    case '\"': return 1; break;
-    default:
-    	return 0;
-  }
-}
 
-int isOperator(char * c)
-{
-	int i = 0;
-	int length = sizeof(cOperators);
-	for(i = 0; i < length; i++)
-	{
-		if(!strcmp(c,cOperators[i]))
-			return 1;
-	}
+// char* isOperator(char *  c)
+// {
+// 	char r = c[0];
+// 	switch(r)
+// 	{
+// 		case '<': return "Less than"; break;
+// 		case '>': return "Greater than"; break;
+// 		case '*': return "Multiplication"; break;
+// 		case '|': return "Bitwise OR"; break;
+// 		case '&': return "Bitwise AND"; break;
+// 		case '(': return "Open Paren"; break;
+// 		case ')': return "Close Paren"; break;
+// 		case '[': return "Open Bracket"; break;
+// 		case ']': return "Close Bracket"; break;
+// 		case '{': return "Open Brace"; break;
+// 		case '}': return "Close Brace"; break;
+// 		case '?': return "Ternary Operator"; break;
+// 		case '+': return "Addition"; break;
+// 		case '-': return "Subtraction"; break;
+// 		case '%': return "String Format"; break;
+// 		default:
+// 			return "Bad Token";
+// 			break;
 
-	return 0;
-}
+// 	}
+// 	return "Bad Token";
+// }
 
 
 
@@ -218,16 +214,6 @@ tokenType getSimpleState( char input )
 	{
 		return SPACE;
 	}
-
-	else if(isSpecialCharacter(c))
-	{
-		return SPECIAL;
-	}
-
-	// else if(isOperator(c))
-	// {
-	// 	return OPERATOR;
-	// }
 
 	else if(ispunct(c))
 	{
@@ -287,6 +273,16 @@ Token* tokenize( TokenizerT * tk )
 			break;
 		}
 		//append if they match, regardless of type
+
+		if(nType == WORD || temp_token->tType == WORD)
+		{
+			if(isalnum(next))
+			{
+				temp_token->tType = WORD;
+				temp[strlen(temp)] = next;
+			}
+		}
+
 
 		//float
 		else if(next == '.' && temp_token->tType == DECIMAL)
@@ -394,7 +390,7 @@ int main(int argc, char **argv) {
 		}
 		else
 		{
-			char* enumVal = getVals(TT->current_token->tType);
+			char* enumVal = getVals(TT->current_token);
 			printf("%s: %s \n",enumVal,tok);//printing an enum gets its number not string
 			free(tok);
 			free(TT->current_token);
