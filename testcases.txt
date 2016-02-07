@@ -1,0 +1,35 @@
+Tokenizer string is: this is a test case
+Word: this 
+Word: is 
+Word: a 
+Word: test 
+Word: case 
+Tokenizer string is: this1is2a3test4case5
+Word: this 
+Decimal: 1 
+Word: is 
+Decimal: 2 
+Word: a 
+Decimal: 3 
+Word: test 
+Decimal: 4 
+Word: case 
+Decimal: 5 
+Tokenizer string is: 0xT35tc453
+Bad Token: 0x 
+Word: T 
+Decimal: 35 
+Word: tc 
+Decimal: 453 
+Tokenizer string is: 0xT35t3.14159269c453
+Bad Token: 0x 
+Word: T 
+Decimal: 35 
+Word: t 
+Float: 3.14159269 
+Word: c 
+Decimal: 453 
+Tokenizer string is: sdlkfghj#01234
+Word: sdlkfghj 
+Bad Token: # 
+Decimal: 01234 
