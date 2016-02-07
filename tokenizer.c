@@ -12,7 +12,7 @@
 
 
 
-typedef enum tokenType_ {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, BADTOKEN, SPACE, SPECIAL, OPERATOR} tokenType;
+typedef enum tokenType_ {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, BADTOKEN, SPACE, SPECIAL, OPERATOR, NUMBER} tokenType;
 
 typedef struct Token_ {
 	char *token;
@@ -84,7 +84,9 @@ char* getVals(Token * type)
 		case SPECIAL:
 			return "Special character";
 			break;
-
+		case NUMBER:
+			return "Number";
+			break;
 		default:
 			//return temp_token;
 			break;
@@ -274,7 +276,7 @@ Token* tokenize( TokenizerT * tk )
 		}
 		//append if they match, regardless of type
 
-		if(nType == WORD || temp_token->tType == WORD)
+		if(temp_token->tType == WORD)
 		{
 			if(isalnum(next))
 			{
@@ -306,7 +308,7 @@ Token* tokenize( TokenizerT * tk )
 		}
 
 		//hex
-		else if(start == '0' && (next == 'x' || next == 'x'))
+		else if(start == '0' && (next == 'x' || next == 'X'))
 		{
 			temp_token->tType = HEX;
 			temp[strlen(temp)] = next;
@@ -324,8 +326,10 @@ Token* tokenize( TokenizerT * tk )
 			}
 		}
 
+
 		else if(temp_token -> tType == OCTAL)
 		{
+			printf("continue oct\n");
 			if(!isdigit(cur))
 			{
 				break;
@@ -335,6 +339,7 @@ Token* tokenize( TokenizerT * tk )
 				temp[strlen(temp)] = next;
 			}
 		}
+
 
 		//
 		else if(temp_token->tType == nType)
