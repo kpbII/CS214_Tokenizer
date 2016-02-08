@@ -330,18 +330,23 @@ Token* tokenize( TokenizerT * tk )
 			}
 		}
 
-		else if(start == '0' && temp_token -> tType == NUMBER){
-			temp_token->tType = OCTAL;
+		else if(temp_token -> tType == NUMBER){
+			//printf("A cur %c next %c\n",cur,next);
+			if(next == '0')
+				temp_token->tType = OCTAL;
+			else
+				temp_token->tType = DECIMAL;
 			temp[strlen(temp)] = next;
 		}
 		else if(temp_token -> tType == OCTAL)
 		{
-			printf("continue oct\n");
+			//printf("B cur %c next %c\n",cur,next);
+			//printf("continue oct\n");
 			if(!isdigit(cur))
 			{
 				break;
 			}
-			else if(cur < 8)
+			else if(next < '8')
 			{
 				temp[strlen(temp)] = next;
 			}
