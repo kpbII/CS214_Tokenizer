@@ -283,9 +283,13 @@ Token* tokenize( TokenizerT * tk )
 				temp_token->tType = WORD;
 				temp[strlen(temp)] = next;
 			}
-			else{
+			else if(isspace(next)){
 				tk->index++;
 				break;
+			}
+			else{
+				break;
+
 			}
 		}
 
