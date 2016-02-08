@@ -31,6 +31,7 @@ typedef struct TokenizerT_ {
 
 
 Token* tokenize( TokenizerT * tk );
+char* isOperator(char  c);
 
 /*
 * Function to match up enum values with strings to fix the print issue
@@ -39,7 +40,9 @@ Token* tokenize( TokenizerT * tk );
 */
 char* getVals(Token * type)
 {
-	//char* toReturn = isOperator(type->token);
+	char* toReturn = type->token;
+	char check = toReturn[0];
+	toReturn = isOperator(check);
 
 	switch(type->tType)
 	{
@@ -70,7 +73,7 @@ char* getVals(Token * type)
 			break;
 
 		case BADTOKEN:
-			return "Punctuation";
+			return toReturn;
 			break;
 
 		case SPACE:
@@ -81,9 +84,10 @@ char* getVals(Token * type)
 			return "Operator";
 			break;
 
-		case SPECIAL:
-			return "Special character";
-			break;
+		// case SPECIAL:
+		// 	return "Special character";
+		// 	break;
+
 		case NUMBER:
 			return "Number";
 			break;
@@ -91,6 +95,8 @@ char* getVals(Token * type)
 			//return temp_token;
 			break;
 	}
+
+	return 0;
 }
 
 
@@ -169,33 +175,32 @@ char *TKGetNextToken( TokenizerT * tk ) {
 }
 
 
-// char* isOperator(char *  c)
-// {
-// 	char r = c[0];
-// 	switch(r)
-// 	{
-// 		case '<': return "Less than"; break;
-// 		case '>': return "Greater than"; break;
-// 		case '*': return "Multiplication"; break;
-// 		case '|': return "Bitwise OR"; break;
-// 		case '&': return "Bitwise AND"; break;
-// 		case '(': return "Open Paren"; break;
-// 		case ')': return "Close Paren"; break;
-// 		case '[': return "Open Bracket"; break;
-// 		case ']': return "Close Bracket"; break;
-// 		case '{': return "Open Brace"; break;
-// 		case '}': return "Close Brace"; break;
-// 		case '?': return "Ternary Operator"; break;
-// 		case '+': return "Addition"; break;
-// 		case '-': return "Subtraction"; break;
-// 		case '%': return "String Format"; break;
-// 		default:
-// 			return "Bad Token";
-// 			break;
+char* isOperator(char  c)
+{
+	switch(c)
+	{
+		case '<': return "Less than"; break;
+		case '>': return "Greater than"; break;
+		case '*': return "Multiplication"; break;
+		case '|': return "Bitwise OR"; break;
+		case '&': return "Bitwise AND"; break;
+		case '(': return "Left Paren"; break;
+		case ')': return "Right Paren"; break;
+		case '[': return "Left Bracket"; break;
+		case ']': return "Right Bracket"; break;
+		case '{': return "Left Brace"; break;
+		case '}': return "Right Brace"; break;
+		case '?': return "Ternary Operator"; break;
+		case '+': return "Addition"; break;
+		case '-': return "Subtraction"; break;
+		case '%': return "String Format"; break;
+		default:
+			return "Bad Token";
+			break;
 
-// 	}
-// 	return "Bad Token";
-// }
+	}
+	return "Bad Token";
+}
 
 
 
@@ -342,6 +347,7 @@ Token* tokenize( TokenizerT * tk )
 				temp_token->tType = OCTAL;
 			else
 				temp_token->tType = DECIMAL;
+				
 			temp[strlen(temp)] = next;
 		}
 		else if(temp_token -> tType == OCTAL)
