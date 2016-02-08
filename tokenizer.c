@@ -12,7 +12,7 @@
 
 
 
-typedef enum tokenType_ {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, BADTOKEN, SPACE, SPECIAL, OPERATOR} tokenType;
+typedef enum tokenType_ {DEFAULT, WORD, DECIMAL, HEX, OCTAL, FLOATP, CONTROL, BADTOKEN, SPACE, SPECIAL, OPERATOR, NUMBER} tokenType;
 
 typedef struct Token_ {
 	char *token;
@@ -84,7 +84,9 @@ char* getVals(Token * type)
 		case SPECIAL:
 			return "Special character";
 			break;
-
+		case NUMBER:
+			return "Number";
+			break;
 		default:
 			//return temp_token;
 			break;
@@ -208,7 +210,7 @@ tokenType getSimpleState( char input )
 	char c = input;
 	if(isdigit(c))
 	{
-		return DECIMAL;
+		return NUMBER;
 	}
 	else if(isspace(c))
 	{
@@ -281,9 +283,15 @@ Token* tokenize( TokenizerT * tk )
 				temp_token->tType = WORD;
 				temp[strlen(temp)] = next;
 			}
-			else{
+
+			else if(isspace(next)){
 				tk->index++;
 				break;
+			}
+			else{
+				break;
+
+
 			}
 		}
 
@@ -310,7 +318,7 @@ Token* tokenize( TokenizerT * tk )
 		}
 
 		//hex
-		else if(start == '0' && (next == 'x' || next == 'x'))
+		else if(start == '0' && (next == 'x' || next == 'X'))
 		{
 			temp_token->tType = HEX;
 			temp[strlen(temp)] = next;
@@ -328,17 +336,32 @@ Token* tokenize( TokenizerT * tk )
 			}
 		}
 
+		else if(temp_token -> tType == NUMBER){
+			//printf("A cur %c next %c\n",cur,next);
+			if(next == '0')
+				temp_token->tType = OCTAL;
+			else
+				temp_token->tType = DECIMAL;
+			temp[strlen(temp)] = next;
+		}
 		else if(temp_token -> tType == OCTAL)
 		{
+			//printf("B cur %c next %c\n",cur,next);
+			//printf("continue oct\n");
 			if(!isdigit(cur))
 			{
 				break;
 			}
-			else if(cur < 8)
+			else if(next < '8')
 			{
 				temp[strlen(temp)] = next;
 			}
+			else{
+				break;
+
+			}
 		}
+
 
 		//
 		else if(temp_token->tType == nType)
