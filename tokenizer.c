@@ -210,7 +210,7 @@ tokenType getSimpleState( char input )
 	char c = input;
 	if(isdigit(c))
 	{
-		return DECIMAL;
+		return NUMBER;
 	}
 	else if(isspace(c))
 	{
@@ -284,9 +284,9 @@ Token* tokenize( TokenizerT * tk )
 				temp[strlen(temp)] = next;
 			}
 			else{
-							tk->index++;
-							break;
-						}
+				tk->index++;
+				break;
+			}
 		}
 
 
@@ -330,7 +330,10 @@ Token* tokenize( TokenizerT * tk )
 			}
 		}
 
-
+		else if(start == '0' && temp_token -> tType == NUMBER){
+			temp_token->tType = OCTAL;
+			temp[strlen(temp)] = next;
+		}
 		else if(temp_token -> tType == OCTAL)
 		{
 			printf("continue oct\n");
@@ -341,6 +344,10 @@ Token* tokenize( TokenizerT * tk )
 			else if(cur < 8)
 			{
 				temp[strlen(temp)] = next;
+			}
+			else{
+				break;
+
 			}
 		}
 
